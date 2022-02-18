@@ -18,13 +18,9 @@
 #include <jni.h>
 #include <cinttypes>
 #include <android/log.h>
-#include <gperf.h>
 #include <openssl/base.h>
 #include <openssl/md5.h>
 #include <string>
-
-#define LOGI(...) \
-  ((void)__android_log_print(ANDROID_LOG_INFO, "hello-libs::", __VA_ARGS__))
 
 /* This is a trivial JNI example where we use a native method
  * to return a new VM String. See the corresponding Java source
@@ -34,9 +30,6 @@
  */
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz, jstring pac_) {
-
-    auto ticks = GetTicks();
-
     const char *pac = env->GetStringUTFChars(pac_, nullptr);
 
     unsigned  char c[MD5_DIGEST_LENGTH];
@@ -58,10 +51,6 @@ Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz,
         sprintf(dest+i*2,"%02X",c[i]);
 
     env->ReleaseStringUTFChars(pac_, pac);
-
-    ticks = GetTicks() - ticks;
-
-    LOGI("calculation time: %" PRIu64, ticks);
 
     return env->NewStringUTF(dest);
 }
