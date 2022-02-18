@@ -33,15 +33,35 @@
  *   app/src/main/java/com/example/hellolibs/MainActivity.java
  */
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz) {
+Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz, jstring pac_) {
 
     auto ticks = GetTicks();
 
+    const char *pac = env->GetStringUTFChars(pac_, nullptr);
+
     unsigned  char c[MD5_DIGEST_LENGTH];
+    int i;
+    char dest[32]={0};
+    FILE *fp;
+    MD5_CTX mdContext;
+    size_t bytes;
+    unsigned char data[1024];
+
+    fp = fopen(pac, "rb");
+    MD5_Init (&mdContext);
+    while(( bytes = fread(data, 1, 1024, fp)) != 0 )
+        MD5_Update(&mdContext, data, bytes );
+    MD5_Final(c, &mdContext );
+    fclose(fp);
+
+    for( i = 0 ; i < MD5_DIGEST_LENGTH ; i++ )
+        sprintf(dest+i*2,"%02X",c[i]);
+
+    env->ReleaseStringUTFChars(pac_, pac);
 
     ticks = GetTicks() - ticks;
 
     LOGI("calculation time: %" PRIu64, ticks);
 
-    return env->NewStringUTF("Hello from JNI LIBS!");
+    return env->NewStringUTF(dest);
 }
