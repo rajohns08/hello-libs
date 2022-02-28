@@ -20,6 +20,7 @@
 #include <android/log.h>
 #include <openssl/base.h>
 #include <openssl/md5.h>
+#include <openssl/rand.h>
 #include <string>
 
 /* This is a trivial JNI example where we use a native method
@@ -53,4 +54,13 @@ Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz,
     env->ReleaseStringUTFChars(pac_, pac);
 
     return env->NewStringUTF(dest);
+}
+
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_example_hellolibs_MainActivity_randomBytes(JNIEnv *env, jobject thiz, jint num_bytes) {
+    auto* aes_key = new uint8_t[num_bytes];
+    RAND_bytes(aes_key, num_bytes);
+    jbyteArray ret = env->NewByteArray(num_bytes);
+    env->SetByteArrayRegion(ret, 0, num_bytes, (jbyte*)aes_key);
+    return ret;
 }
