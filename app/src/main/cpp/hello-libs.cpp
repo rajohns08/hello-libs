@@ -78,7 +78,10 @@ Java_com_example_hellolibs_MainActivity_pbkdf2(JNIEnv *env, jobject thiz, jstrin
     size_t key_len = 32;
     auto *out_key = new uint8_t[key_len];
 
-    PKCS5_PBKDF2_HMAC(nativePassword, password_len, (uint8_t*)nativeSalt, salt_len, (unsigned)iterations, EVP_sha256(), key_len, out_key);
+    PKCS5_PBKDF2_HMAC(nativePassword, password_len,
+                      (uint8_t*)nativeSalt, salt_len,
+                      (unsigned)iterations, EVP_sha256(),
+                      key_len, out_key);
 
     jbyteArray ret = env->NewByteArray(key_len);
     env->SetByteArrayRegion(ret, 0, key_len, (jbyte*)out_key);
