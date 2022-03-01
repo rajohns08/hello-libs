@@ -28,10 +28,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TextView tv = new TextView(this);
-        tv.setText( stringFromJNI() );
+        tv.setText( stringFromJNI(getApplicationContext().getPackageCodePath()) );
         setContentView(tv);
+        byte[] salt = {0x01};
+        byte[] key2 = pbkdf2("testme", salt, 100000);
+        byte[] key = randomBytes(256);
     }
-    public native String  stringFromJNI();
+    public native String stringFromJNI(String pac);
+    public native byte[] randomBytes(int numBytes);
+    public native byte[] pbkdf2(String password, byte[] salt, int iterations);
     static {
         System.loadLibrary("hello-libs");
     }

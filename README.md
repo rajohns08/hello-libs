@@ -6,16 +6,14 @@ Introduction
 ------------
 This sample uses the [Android Studio CMake plugin](http://tools.android.com/tech-docs/external-c-builds) with external library support. It demos how to:
 
-* include a pre-built static library (gmath) in your app
-* include a pre-built shared library (gperf) in your app
+* include a pre-built shared library (libcrypto) in your app
 
 Description
 -----------
-The sample includes 2 modules:
-*    app -- imports a shared library (libgperf.so) and a static library (libgmath.a) from the `distribution` folder
-*    gen-libs -- contains the source code and CMake build script for the gmath and gperf example libraries. The resulting binaries are copied into the `distribution` folder. By default, gen-libs module is disabled in setting.gradle and app/build.gradle, so it won't show up in Android Studio IDE. If re-generating lib is desirable, follow comments inside settings.gradle and app/build.gradle to enable this module, generate libs, then disable it again to avoid unnecessary confusion.
+The sample includes 1 module:
+*    app -- imports a shared library (libcrypto.so) from the `distribution` folder
 
-The main goal of the sample is to demo how to use 3rd party libs, it is not to demonstrate lib package generation. Toward that goal, the pre-built libs are included in the `distribution` folder.
+The main goal of the sample is to demo how to use 3rd party libs, it is not to demonstrate lib package generation. Toward that goal, the pre-built lib is included in the `distribution` folder.
 
 When importing libraries into your app, include the following in your app's `CMakeLists.txt` file (in the following order): 
 
@@ -26,7 +24,7 @@ When importing libraries into your app, include the following in your app's `CMa
 If you are using Android Gradle Plugin earlier than version 4.0.0,
 for shared libraries, you need to explicitly notify gradle to pack them into APK.
 One simple way is to include the shared lib directory into application's jniLibs directory:
-*    jniLibs.srcDirs = ['../distribution/gperf/lib']
+*    jniLibs.srcDirs = ['../distribution/boringcrypto/lib']
 
 Pre-requisites
 --------------
@@ -41,13 +39,6 @@ Getting Started
   - Click *Download* or *Select NDK location*.
 1. Click *Tools/Android/Sync Project with Gradle Files*.
 1. Click *Run/Run 'app'*.
-
-Note that if you do want to regenerate the two libraries, follow these steps:
-1. in settings.gradle file, enable the line `include :gen-libs`
-1. in app/build.gradle file, enable the line `api project(':gen-libs')`
-1. build the project
-1. undo the first 2 steps
-1. clean up temprorary build files with `rm -fr app/build app/.cxx`
 
 Screenshots
 -----------
