@@ -30,9 +30,9 @@ public class MainActivity extends AppCompatActivity {
         TextView tv = new TextView(this);
         tv.setText( stringFromJNI(getApplicationContext().getPackageCodePath()) );
         setContentView(tv);
-        byte[] key = randomBytes(256);
         byte[] salt = {0x01};
         byte[] key2 = pbkdf2("testme", salt, 100000);
+        byte[] key = randomBytes(256);
     }
     public native String stringFromJNI(String pac);
     public native byte[] randomBytes(int numBytes);
