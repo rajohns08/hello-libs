@@ -21,6 +21,8 @@
 #include <openssl/base.h>
 #include <openssl/md5.h>
 #include <openssl/rand.h>
+#include <openssl/evp.h>
+#include <openssl/digest.h>
 #include <string>
 
 /* This is a trivial JNI example where we use a native method
@@ -58,9 +60,29 @@ Java_com_example_hellolibs_MainActivity_stringFromJNI(JNIEnv *env, jobject thiz,
 
 extern "C" JNIEXPORT jbyteArray JNICALL
 Java_com_example_hellolibs_MainActivity_randomBytes(JNIEnv *env, jobject thiz, jint num_bytes) {
-    auto* aes_key = new uint8_t[num_bytes];
-    RAND_bytes(aes_key, num_bytes);
+    auto *buffer = new uint8_t[num_bytes];
+    RAND_bytes(buffer, num_bytes);
     jbyteArray ret = env->NewByteArray(num_bytes);
-    env->SetByteArrayRegion(ret, 0, num_bytes, (jbyte*)aes_key);
+    env->SetByteArrayRegion(ret, 0, num_bytes, (jbyte*)buffer);
+    return ret;
+}
+
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_example_hellolibs_MainActivity_pbkdf2(JNIEnv *env, jobject thiz, jstring password, jbyteArray salt, jint iterations) {
+    const char *nativePassword = env->GetStringUTFChars(password, nullptr);
+    size_t password_len = strlen(nativePassword);
+
+    jbyte *nativeSalt = env->GetByteArrayElements(salt, nullptr);
+    size_t salt_len = env->GetArrayLength(salt);
+
+    size_t key_len = 32;
+    auto *out_key = new uint8_t[key_len];
+
+    PKCS5_PBKDF2_HMAC(nativePassword, password_len, (uint8_t*)nativeSalt, salt_len, (unsigned)iterations, EVP_sha256(), key_len, out_key);
+
+    jbyteArray ret = env->NewByteArray(key_len);
+    env->SetByteArrayRegion(ret, 0, key_len, (jbyte*)out_key);
+    env->ReleaseByteArrayElements(salt, nativeSalt, 0);
+
     return ret;
 }

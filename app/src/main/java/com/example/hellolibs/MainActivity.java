@@ -31,9 +31,12 @@ public class MainActivity extends AppCompatActivity {
         tv.setText( stringFromJNI(getApplicationContext().getPackageCodePath()) );
         setContentView(tv);
         byte[] key = randomBytes(256);
+        byte[] salt = {0x01};
+        byte[] key2 = pbkdf2("testme", salt, 100000);
     }
     public native String stringFromJNI(String pac);
     public native byte[] randomBytes(int numBytes);
+    public native byte[] pbkdf2(String password, byte[] salt, int iterations);
     static {
         System.loadLibrary("hello-libs");
     }
