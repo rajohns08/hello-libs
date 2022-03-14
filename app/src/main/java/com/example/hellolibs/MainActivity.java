@@ -17,6 +17,7 @@ package com.example.hellolibs;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 /*
  * Simple Java UI to trigger jni function. It is exactly same as Java code
@@ -33,12 +34,31 @@ public class MainActivity extends AppCompatActivity {
         byte[] salt = {0x01};
         byte[] key2 = pbkdf2("testme", salt, 100000);
         byte[] key = randomBytes(256);
+        
+        String saltHex = "0102030405060708090A0B0C0D0E0F1D";
+        byte[] saltBytes = hexStringToByteArray(saltHex);
+        Log.d("tagzzz", "test");
     }
     public native String stringFromJNI(String pac);
     public native byte[] randomBytes(int numBytes);
     public native byte[] pbkdf2(String password, byte[] salt, int iterations);
+    public native byte[] crypt(byte[] data, byte[] key, int operation);
     static {
         System.loadLibrary("hello-libs");
+    }
+
+
+
+
+
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
     }
 
 }

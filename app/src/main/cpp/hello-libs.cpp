@@ -24,6 +24,7 @@
 #include <openssl/evp.h>
 #include <openssl/digest.h>
 #include <string>
+#include <openssl/aes.h>
 
 /* This is a trivial JNI example where we use a native method
  * to return a new VM String. See the corresponding Java source
@@ -88,4 +89,25 @@ Java_com_example_hellolibs_MainActivity_pbkdf2(JNIEnv *env, jobject thiz, jstrin
     env->ReleaseByteArrayElements(salt, nativeSalt, 0);
 
     return ret;
+}
+
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_example_hellolibs_MainActivity_crypt(JNIEnv *env, jobject thiz, jbyteArray data, jbyteArray key, jint operation) {
+    jbyte *nativeData = env->GetByteArrayElements(data, nullptr);
+    jbyte *nativeKey = env->GetByteArrayElements(key, nullptr);
+
+    EVP_CIPHER_CTX *ctx;
+
+    ctx = EVP_CIPHER_CTX_new();
+
+    EVP_CipherInit_ex(ctx, EVP_aes_256_cbc(), nullptr, (uint8_t*)nativeKey, nullptr, (int)operation);
+
+    size_t data_len = env->GetArrayLength(data);
+    size_t buf_size = data_len + AES_BLOCK_SIZE;
+    TODO: IS THIS UNSIGNED CHAR THE CORRECT TYPE? WHY ISNT IT CHAR*? or uint8_t* like out_key from above function
+    unsigned char output[buf_size];
+    int len;
+    EVP_CipherUpdate(ctx, output, &len, (uint8_t*)nativeData, data_len);
+
+    EVP_CipherFinal_ex(ctx, output + len, &len);
 }
