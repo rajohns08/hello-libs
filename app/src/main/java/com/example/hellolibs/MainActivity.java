@@ -24,6 +24,11 @@ import android.widget.TextView;
  * in hello-jni.
  */
 public class MainActivity extends AppCompatActivity {
+    
+    enum Operation {
+        DECRYPT,
+        ENCRYPT
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +42,12 @@ public class MainActivity extends AppCompatActivity {
         
         String saltHex = "0102030405060708090A0B0C0D0E0F1D";
         byte[] saltBytes = hexStringToByteArray(saltHex);
+        Log.d("tagzzz", "test");
+        
+
+        byte[] encrypted = crypt(salt, key2, Operation.ENCRYPT.ordinal());
+
+        byte[] decrypted = crypt(encrypted, key2, Operation.DECRYPT.ordinal());
         Log.d("tagzzz", "test");
     }
     public native String stringFromJNI(String pac);

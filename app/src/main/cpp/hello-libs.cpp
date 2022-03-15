@@ -86,6 +86,7 @@ Java_com_example_hellolibs_MainActivity_pbkdf2(JNIEnv *env, jobject thiz, jstrin
 
     jbyteArray ret = env->NewByteArray(key_len);
     env->SetByteArrayRegion(ret, 0, key_len, (jbyte*)out_key);
+
     env->ReleaseByteArrayElements(salt, nativeSalt, 0);
 
     return ret;
@@ -104,10 +105,23 @@ Java_com_example_hellolibs_MainActivity_crypt(JNIEnv *env, jobject thiz, jbyteAr
 
     size_t data_len = env->GetArrayLength(data);
     size_t buf_size = data_len + AES_BLOCK_SIZE;
-    TODO: IS THIS UNSIGNED CHAR THE CORRECT TYPE? WHY ISNT IT CHAR*? or uint8_t* like out_key from above function
-    unsigned char output[buf_size];
+    auto *output = new uint8_t[buf_size];
+    int output_len;
     int len;
+
     EVP_CipherUpdate(ctx, output, &len, (uint8_t*)nativeData, data_len);
+    output_len = len;
 
     EVP_CipherFinal_ex(ctx, output + len, &len);
+    output_len += len;
+
+    EVP_CIPHER_CTX_free(ctx);
+
+    jbyteArray ret = env->NewByteArray(output_len);
+    env->SetByteArrayRegion(ret, 0, output_len, (jbyte*)output);
+
+    env->ReleaseByteArrayElements(data, nativeData, 0);
+    env->ReleaseByteArrayElements(key, nativeKey, 0);
+
+    return ret;
 }
